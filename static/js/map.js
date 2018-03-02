@@ -572,7 +572,7 @@ function pokemonLabel(item) {
       ${name} <span class='pokemon name pokedex'><a href='http://pokemon.gameinfo.io/en/pokemon/${id}' target='_blank' title='View in Pokédex'>#${id}</a></span> ${formString} <span class='pokemon gender rarity'>${genderType[gender - 1]} ${rarityDisplay}</span> ${typesDisplay}
     </div>`
 
-    if (showStats && cp !== null && cpMultiplier !== null) {
+    if (showStats && cp !== null) {
         var pokemonLevel = getPokemonLevel(cpMultiplier)
 
         if (atk !== null && def !== null && sta !== null) {
