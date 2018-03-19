@@ -1148,7 +1148,14 @@ function getGoogleSprite(index, sprite, displayHeight) {
 
 function setupPokemonMarkerDetails(item, map, scaleByRarity = true, isNotifyPkmn = false) {
     const pokemonIndex = item['pokemon_id'] - 1
-    const sprite = pokemonSprites
+    var sprite = Object.assign({}, pokemonSprites)
+
+    if (item['individual_attack']) {
+        var iv = Math.round((item['individual_attack'] + item['individual_defense'] + item['individual_stamina']) / 45 * 100)
+        if (iv > 90) {
+            sprite.filename = 'static/icons-large-sprite_green.png'
+        }
+    }
 
     var markerDetails = {
         sprite: sprite
@@ -1179,7 +1186,6 @@ function setupPokemonMarkerDetails(item, map, scaleByRarity = true, isNotifyPkmn
     markerDetails.rarityValue = rarityValue
     markerDetails.icon = getGoogleSprite(pokemonIndex, sprite, iconSize)
     markerDetails.iconSize = iconSize
-
     return markerDetails
 }
 

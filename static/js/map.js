@@ -170,6 +170,8 @@ function initMap() { // eslint-disable-line no-unused-vars
         },
         zoom: Number(getParameterByName('zoom')) || Store.get('zoomLevel'),
         gestureHandling: 'greedy',
+        minZoom: 13,
+        maxZoom: 20,
         fullscreenControl: true,
         streetViewControl: false,
         mapTypeControl: false,
@@ -620,7 +622,7 @@ function pokemonLabel(item) {
                 <span class='label-countdown' disappears-at='${disappearTime}'>00m00s</span> left (${moment(disappearTime).format('HH:mm')})
               </div>
               <div class='pokemon'>
-                CP: <span class='pokemon encounter'>${cp}/${iv.toFixed(1)}%</span> (A${atk}/D${def}/S${sta})
+                CP: <span class='pokemon encounter enlarge'>${cp}/${iv.toFixed(1)}%</span> (A${atk}/D${def}/S${sta})
               </div>
               <div class='pokemon'>
                 Moveset: <span class='pokemon encounter'>${pMove1}/${pMove2}</span>
@@ -1092,11 +1094,12 @@ function isNotifyPerfectionPoke(poke) {
 
     // Notify for IV.
     if (poke['individual_attack'] != null) {
+        console.log('yay')
         const perfection = getIv(poke['individual_attack'], poke['individual_defense'], poke['individual_stamina'])
         hasHighIV = notifiedMinPerfection > 0 && perfection >= notifiedMinPerfection
         const shouldNotifyForIV = (hasHighIV && notifiedMinLevel <= 0)
 
-        hasHighAttributes = shouldNotifyForIV
+        hasHighAttributes = shouldNotifyForIV || (perfection === 100.0)
     }
 
     // Or notify for level. If IV filter is enabled, this is an AND relation.
