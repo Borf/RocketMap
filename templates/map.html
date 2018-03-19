@@ -278,7 +278,7 @@
                 <option value="5">Ultra Rare and below</option>
               </select>
             </div>
-                  {% if show.encounter %}
+
             <div class="form-control switch-container">
               <h3>Pokémon Stats</h3>
               <div class="onoffswitch">
@@ -289,7 +289,6 @@
                 </label>
               </div>
             </div>
-                  {% endif %}
               {% endif %}
           </div>
 
@@ -390,7 +389,6 @@
               </label>
             </div>
 
-              {% if show.encounter %}
             <div id="notify-perfection-wrapper" style="display:none">
               <div class="form-control">
                 <label for="notify-perfection">
@@ -405,7 +403,6 @@
                 <input id="notify-level" type="text" name="notify-level" placeholder="Minimum level"/>
               </label>
             </div>
-              {% endif %}
             <div class="form-control switch-container">
               <h3>Notify with sound</h3>
               <div class="onoffswitch">
