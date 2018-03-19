@@ -78,9 +78,9 @@ const audio = new Audio('static/sounds/ding.mp3')
 const cryFileTypes = ['wav', 'mp3']
 
 const genderType = ['♂', '♀', '⚲']
-const unownForm = ['unset', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '!', '?']
+const forms = ['unset', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '!', '?', '👤', '☀️', '☔️', '⛄️', '👤', '⚔️', '🛡️', '⚡️']
 const pokemonWithImages = [
-    2, 3, 5, 6, 8, 9, 11, 28, 31, 34, 38, 59, 62, 65, 68, 71, 73, 76, 82, 87, 89, 91, 94, 103, 105, 110, 112, 123, 124, 125, 126, 129, 131, 134, 135, 136, 137, 139, 143, 144, 145, 146, 150, 153, 156, 159, 160, 184, 221, 243, 244, 245, 248, 249, 250, 302, 303, 306, 320, 333, 359, 361, 382, 383, 384
+    2, 3, 5, 6, 8, 9, 11, 28, 31, 34, 38, 59, 62, 65, 68, 71, 73, 76, 80, 82, 87, 89, 91, 94, 103, 105, 110, 112, 121, 123, 124, 125, 126, 129, 131, 134, 135, 136, 137, 139, 142, 143, 144, 145, 146, 150, 153, 156, 159, 160, 184, 221, 243, 244, 245, 248, 249, 250, 302, 303, 306, 320, 333, 344, 359, 361, 382, 383, 384
 ]
 
 const excludedRaritiesList = [
@@ -92,16 +92,7 @@ const excludedRaritiesList = [
   ['common', 'uncommon', 'rare', 'very rare', 'ultra rare']
 ]
 
-const weatherTypes = ['none', 'clear', 'rain', 'partly_cloudy', 'cloudy', 'windy', 'snow', 'fog']
-
-function weatherImage(weatherCondition, timeOfDay) {
-    var weatherType = weatherTypes[weatherCondition]
-    if (timeOfDay && ((weatherCondition === 1) || (weatherCondition === 3))) {
-        return `weather_${weatherType}_${timeOfDay}.png`
-    } else {
-        return `weather_${weatherType}.png`
-    }
-}
+const weatherEmojis = [ '', '☀️', '☔️', '⛅', '☁️', '💨', '⛄️', '🌁' ]
 
 /*
  text place holders:
@@ -170,6 +161,8 @@ function initMap() { // eslint-disable-line no-unused-vars
         },
         zoom: Number(getParameterByName('zoom')) || Store.get('zoomLevel'),
         gestureHandling: 'greedy',
+        minZoom: 13,
+        maxZoom: 20,
         fullscreenControl: true,
         streetViewControl: false,
         mapTypeControl: false,
@@ -569,9 +562,6 @@ function pokemonLabel(item) {
     var cpMultiplier = item['cp_multiplier']
     var weatherBoostedCondition = item['weather_boosted_condition']
     var weatherDisplay = ''
-    var currentDate = new Date()
-    var currentHour = currentDate.getHours()
-    var timeOfDay = (currentHour >= 6 && currentHour < 19) ? 'day' : 'night'
     const showStats = Store.get('showPokemonStats')
 
     $.each(types, function (index, type) {
@@ -579,7 +569,7 @@ function pokemonLabel(item) {
     })
 
     if (weatherBoostedCondition) {
-        weatherDisplay = `<img src='static/images/weather/${weatherImage(weatherBoostedCondition, timeOfDay)}' style="width: 24px; vertical-align: middle;">`
+        weatherDisplay = `<span class="pokemon weather-boost">${weatherEmojis[weatherBoostedCondition]}</span>`
     }
 
     var details = ''
@@ -587,8 +577,8 @@ function pokemonLabel(item) {
     var contentstring = ''
     var formString = ''
 
-    if (id === 201 && form !== null && form > 0) {
-        formString += `(${unownForm[item['form']]})`
+    if (form !== null && form > 0 && forms.length > form) {
+        formString += `(${forms[item['form']]})`
     }
 
     contentstring += `
@@ -620,7 +610,7 @@ function pokemonLabel(item) {
                 <span class='label-countdown' disappears-at='${disappearTime}'>00m00s</span> left (${moment(disappearTime).format('HH:mm')})
               </div>
               <div class='pokemon'>
-                CP: <span class='pokemon encounter'>${cp}/${iv.toFixed(1)}%</span> (A${atk}/D${def}/S${sta})
+                CP: <span class='pokemon encounter enlarge'>${cp}/${iv.toFixed(1)}%</span> (A${atk}/D${def}/S${sta})
               </div>
               <div class='pokemon'>
                 Moveset: <span class='pokemon encounter'>${pMove1}/${pMove2}</span>
@@ -1092,11 +1082,12 @@ function isNotifyPerfectionPoke(poke) {
 
     // Notify for IV.
     if (poke['individual_attack'] != null) {
+        console.log('yay')
         const perfection = getIv(poke['individual_attack'], poke['individual_defense'], poke['individual_stamina'])
         hasHighIV = notifiedMinPerfection > 0 && perfection >= notifiedMinPerfection
         const shouldNotifyForIV = (hasHighIV && notifiedMinLevel <= 0)
 
-        hasHighAttributes = shouldNotifyForIV
+        hasHighAttributes = shouldNotifyForIV || (perfection === 100.0)
     }
 
     // Or notify for level. If IV filter is enabled, this is an AND relation.
@@ -2375,7 +2366,6 @@ function getSidebarGymMember(pokemon) {
                             </div>
                         </td>
                         <td width="190" align="center">
-                            <div class="gym pokemon">${pokemon.trainer_name} (${pokemon.trainer_level})</div>
                             <div class="gym pokemon">Deployed ${relativeTime}</div>
                             ${absoluteTime}
                         </td>
