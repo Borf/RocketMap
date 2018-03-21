@@ -507,7 +507,8 @@ class Gym(LatLongModel):
                            GymPokemon.pokemon_id,
                            GymPokemon.costume,
                            GymPokemon.form,
-                           GymPokemon.shiny)
+                           GymPokemon.shiny,
+                           GymPokemon.trainer_name)
                        .join(Gym, on=(GymMember.gym_id == Gym.gym_id))
                        .join(GymPokemon, on=(GymMember.pokemon_uid ==
                                              GymPokemon.pokemon_uid))
@@ -588,7 +589,8 @@ class Gym(LatLongModel):
                            GymPokemon.iv_stamina,
                            GymPokemon.costume,
                            GymPokemon.form,
-                           GymPokemon.shiny)
+                           GymPokemon.shiny,
+                           GymPokemon.trainer_name)
                    .join(Gym, on=(GymMember.gym_id == Gym.gym_id))
                    .join(GymPokemon,
                          on=(GymMember.pokemon_uid == GymPokemon.pokemon_uid))
@@ -1742,6 +1744,7 @@ class GymPokemon(BaseModel):
     form = SmallIntegerField(null=True)
     shiny = SmallIntegerField(null=True)
     last_seen = DateTimeField(default=datetime.utcnow)
+    trainer_name = Utf8mb4CharField()
 
 
 class GymDetails(BaseModel):
@@ -2565,6 +2568,7 @@ def parse_gyms(args, gym_responses, wh_update_queue, db_update_queue):
                 'form': pokemon.pokemon_display.form,
                 'shiny': pokemon.pokemon_display.shiny,
                 'last_seen': datetime.utcnow(),
+                'trainer_name' : pokemon.owner_name
             }
 
             if 'gym-info' in args.wh_types:
@@ -2582,6 +2586,7 @@ def parse_gyms(args, gym_responses, wh_update_queue, db_update_queue):
         if 'gym-info' in args.wh_types:
             wh_update_queue.put(('gym_details', webhook_data))
 
+    log.info(gym_pokemon);
     # All this database stuff is synchronous (not using the upsert queue) on
     # purpose.  Since the search workers load the GymDetails model from the
     # database to determine if a gym needs to be rescanned, we need to be sure
